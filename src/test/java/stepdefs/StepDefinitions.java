@@ -11,7 +11,8 @@ import org.openqa.selenium.firefox.FirefoxDriver;
 import org.openqa.selenium.support.PageFactory;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
-import pages.Homepage;
+import pages.AreaPage;
+import pages.HomePage;
 
 import java.io.File;
 import java.io.IOException;
@@ -19,19 +20,23 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
 import java.util.UUID;
+import java.util.concurrent.TimeUnit;
+
 import static org.junit.Assert.*;
 
 public class StepDefinitions {
 
     private WebDriver driver;
-    private Homepage homepage;
+    private HomePage homepage;
+    private AreaPage areapage;
 
     @Before
     public void before() {
         driver = new FirefoxDriver();
+        driver.manage().timeouts().implicitlyWait(10, TimeUnit.SECONDS);
         driver.get("https://www.just-eat.co.uk/");
         driver.manage().window().maximize();
-        homepage = PageFactory.initElements(driver, Homepage.class);
+        homepage = PageFactory.initElements(driver, HomePage.class);
     }
 
     @After
@@ -41,20 +46,19 @@ public class StepDefinitions {
 
     @Given("I want food in {string}")
     public void i_want_food_in(String postcode) {
-        homepage.setPostcode(postcode);
-        homepage.clickSearch();
+        areapage = homepage.searchPostcode(postcode);
     }
 
     @When("I search for restaurants {string}")
     public void i_search_for_restaurants(String restaurant) {
-        driver.findElement(By.cssSelector("#dish-search")).sendKeys(restaurant);
-        driver.findElement(By.cssSelector("form button[data-test-id='unified-submit-button']")).click();
+        areapage = PageFactory.initElements(driver, AreaPage.class);
+        areapage.searchDish(restaurant);
     }
 
     @Then("I should see some restaurants in {string}")
     public void i_should_see_some_restaurants_in(String postcode) {
-        assertTrue(driver.findElements(By.cssSelector("div[data-test-id='searchresults'] > div:first-child section")).size() > 0);
-        assertTrue(driver.findElement(By.cssSelector("div[class='c-locationHeader u-showAboveMid'] h1")).getText().contains(postcode));
+        assertTrue(areapage.getSearchResults().size() > 0);
+        assertTrue(areapage.getLocationLabel().getText().contains(postcode));
     }
 
     @Given("I am at the create account page")
@@ -112,7 +116,7 @@ public class StepDefinitions {
             }
         }
         catch (Exception e) {
-            this.takeScreenshot(driver,"C:\\yc\\temp\\");
+            this.takeScreenshot(driver,"C:\\yc\\interview\\bmo\\ss\\");
         }
         fail("Item was not added to checkout successfully");
     }
