@@ -11,8 +11,10 @@ import org.openqa.selenium.firefox.FirefoxDriver;
 import org.openqa.selenium.support.PageFactory;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
+import pages.AccountPage;
 import pages.AreaPage;
 import pages.HomePage;
+import pages.RestaurantPage;
 
 import java.io.File;
 import java.io.IOException;
@@ -29,14 +31,18 @@ public class StepDefinitions {
     private WebDriver driver;
     private HomePage homepage;
     private AreaPage areapage;
+    private AccountPage accountpage;
+    private RestaurantPage restaurantPage;
 
     @Before
     public void before() {
         driver = new FirefoxDriver();
-        driver.manage().timeouts().implicitlyWait(10, TimeUnit.SECONDS);
         driver.get("https://www.just-eat.co.uk/");
         driver.manage().window().maximize();
         homepage = PageFactory.initElements(driver, HomePage.class);
+        areapage = PageFactory.initElements(driver, AreaPage.class);
+        accountpage = PageFactory.initElements(driver, AccountPage.class);
+        restaurantPage = PageFactory.initElements(driver, RestaurantPage.class);
     }
 
     @After
@@ -46,12 +52,11 @@ public class StepDefinitions {
 
     @Given("I want food in {string}")
     public void i_want_food_in(String postcode) {
-        areapage = homepage.searchPostcode(postcode);
+        homepage.searchPostcode(postcode);
     }
 
     @When("I search for restaurants {string}")
     public void i_search_for_restaurants(String restaurant) {
-        areapage = PageFactory.initElements(driver, AreaPage.class);
         areapage.searchDish(restaurant);
     }
 
@@ -63,9 +68,9 @@ public class StepDefinitions {
 
     @Given("I am at the create account page")
     public void i_am_at_the_create_account_page() {
-        WebElement signupLink = driver.findElement(By.cssSelector("footer[class='c-footer'] ul[id='footer-customer-service'] a[href='/account/register']"));
-        ((JavascriptExecutor) driver).executeScript("arguments[0].scrollIntoView(true);", signupLink);
-        signupLink.click();
+
+        ((JavascriptExecutor) driver).executeScript("arguments[0].scrollIntoView(true);", homepage.getSignupButton());
+        homepage.clickSignup();
     }
 
     private String name = "tester";
@@ -76,39 +81,35 @@ public class StepDefinitions {
         String email = "food" + uuid + "@gmail.com";
         String password = "test1234";
 
-        driver.findElement(By.cssSelector("#Name")).sendKeys(name);
-        driver.findElement(By.cssSelector("#Email")).sendKeys(email);
-        driver.findElement(By.cssSelector("#Password")).sendKeys(password);
-        driver.findElement(By.cssSelector("form[class='register'] input[type='submit']")).click();
+        accountpage.signup(name, email, password);
     }
 
     @Then("A new JUST EAT account is created")
     public void a_new_JUST_EAT_account_is_created() {
         WebElement user = new WebDriverWait(driver, 10)
-                .until(ExpectedConditions.visibilityOfElementLocated(By.xpath("//div[@class='c-nav-container']//span[contains(text(),'" + name + "')]")));
-        assertEquals(1, driver.findElements(By.xpath("//div[@class='c-nav-container']//span[contains(text(),'" + name + "')]")).size());
+                .until(ExpectedConditions.visibilityOfElementLocated(By.xpath("//div[@class='user-inner']//div[@class='name' and contains(text(),'" + name + "')]")));
+        assertEquals(1, driver.findElements(By.xpath("//div[@class='user-inner']//div[@class='name' and contains(text(),'" + name + "')]")).size());
     }
 
     @Then("I should be able to choose {string}")
-    public void iShouldBeAbleToChoose(String restaurant) throws InterruptedException {
-        driver.findElement(By.xpath("//div[@data-test-id='searchresults']//h3[text()='" + restaurant + "']")).click();
+    public void iShouldBeAbleToChoose(String restaurant) {
+        areapage.clickResult(restaurant);
     }
 
     @Then("I should be able to add {string} to checkout")
     public void iShouldBeAbleToAddToTheCheckout(String dish) throws InterruptedException, IOException {
         try {
-            WebElement itemButton = driver.findElement(By.xpath("//div[@id='menu']//h4[text()='" + dish + "']//..//..//button"));
-            ((JavascriptExecutor) driver).executeScript("arguments[0].scrollIntoView(true);", itemButton);
-            itemButton.click();
+            ((JavascriptExecutor) driver).executeScript("arguments[0].scrollIntoView(true);", restaurantPage.getDish(dish));
+            restaurantPage.addDish(dish);
 
             if (driver.findElements(By.cssSelector("#preOrder")).size() == 1) {
                 driver.findElement(By.cssSelector("#preOrder")).click();
             }
 
             new WebDriverWait(driver, 10)
-                    .until(ExpectedConditions.visibilityOfElementLocated(By.xpath("(//div[@id='basket']//span[@class='total'])[1]")));
+                    .until(ExpectedConditions.visibilityOf(restaurantPage.getSubtotal()));
 
-            List<WebElement> ordersList = driver.findElements(By.xpath("//div[@id='basket']//h3[@class='basketItemDescription']//span[@class='basketItemName']"));
+            List<WebElement> ordersList = restaurantPage.getOrders();
             for (WebElement order : ordersList) {
                 if (order.getText().equals(dish)) {
                     return;

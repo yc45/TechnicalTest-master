@@ -9,11 +9,6 @@ public class HomePage {
 
     public HomePage(WebDriver driver) {
         this.driver = driver;
-
-        if (!driver.getTitle().contains("Order takeaway online from 30,000+ food delivery restaurants")) {
-            System.out.print("home title is " + driver.getTitle());
-            throw new IllegalStateException("This is not the home page");
-        }
     }
 
     @FindBy(css = "input[aria-label='Enter your postcode']")
@@ -21,6 +16,9 @@ public class HomePage {
 
     @FindBy(css = "button[data-test-id='find-restaurants-button']")
     private WebElement searchButton;
+
+    @FindBy(xpath = "//footer[@class='main-footer']//span[text()='Sign up']")
+    private WebElement signupButton;
 
     public HomePage setPostcode(String postcode) {
         postcodeTextbox.sendKeys(postcode);
@@ -37,5 +35,15 @@ public class HomePage {
     public AreaPage searchPostcode(String postcode) {
         setPostcode(postcode);
         return clickSearch();
+    }
+
+    public WebElement getSignupButton() {
+        return signupButton;
+    }
+
+    public AccountPage clickSignup() {
+        signupButton.click();
+
+        return new AccountPage(driver);
     }
 }

@@ -1,5 +1,6 @@
 package pages;
 
+import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.FindBy;
@@ -11,11 +12,6 @@ public class AreaPage {
 
     public AreaPage(WebDriver driver) {
         this.driver = driver;
-
-        if (!driver.getTitle().contains("Restaurants and takeaways in ")) {
-            System.out.println("area title is " + driver.getTitle());
-            throw new IllegalStateException("This is not the area page");
-        }
     }
 
     @FindBy(css = "#dish-search")
@@ -45,6 +41,12 @@ public class AreaPage {
     public AreaPage searchDish(String dish) {
         setDish(dish);
         return clickSearch();
+    }
+
+    public AreaPage clickResult(String restaurant) {
+        driver.findElement(By.xpath("//div[@data-test-id='searchresults']//h3[text()='" + restaurant + "']")).click();
+
+        return this;
     }
 
     public List<WebElement> getSearchResults() {
