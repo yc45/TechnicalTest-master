@@ -24,10 +24,8 @@ public class RestaurantPage {
         return driver.findElement(By.xpath("//div[@id='menu']//h4[text()='" + dish + "']"));
     }
 
-    public RestaurantPage addDish(String dish) {
+    public void addDish(String dish) {
         driver.findElement(By.xpath("//div[@id='menu']//h4[text()='" + dish + "']//..//..//button")).click();
-
-        return this;
     }
 
     public WebElement getSubtotal() {

@@ -20,30 +20,24 @@ public class HomePage {
     @FindBy(xpath = "//footer[@class='main-footer']//span[text()='Sign up']")
     private WebElement signupButton;
 
-    public HomePage setPostcode(String postcode) {
+    public void setPostcode(String postcode) {
         postcodeTextbox.sendKeys(postcode);
-
-        return this;
     }
 
-    public AreaPage clickSearch() {
+    public void clickSearch() {
         searchButton.click();
-
-        return new AreaPage(driver);
     }
 
-    public AreaPage searchPostcode(String postcode) {
+    public void searchPostcode(String postcode) {
         setPostcode(postcode);
-        return clickSearch();
+        clickSearch();
     }
 
     public WebElement getSignupButton() {
         return signupButton;
     }
 
-    public AccountPage clickSignup() {
+    public void clickSignup() {
         signupButton.click();
-
-        return new AccountPage(driver);
     }
 }

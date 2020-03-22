@@ -23,34 +23,26 @@ public class AccountPage {
     @FindBy(css = "form[class='register'] input[type='submit']")
     private WebElement signupButton;
 
-    public AccountPage setName(String name) {
+    public void setName(String name) {
         nameTextbox.sendKeys(name);
-
-        return this;
     }
 
-    public AccountPage setEmail(String email) {
+    public void setEmail(String email) {
         emailTextbox.sendKeys(email);
-
-        return this;
     }
 
-    public AccountPage setPassword(String password) {
+    public void setPassword(String password) {
         passwordTextbox.sendKeys(password);
-
-        return this;
     }
 
-    public HomePage clickSignup() {
+    public void clickSignup() {
         signupButton.click();
-
-        return new HomePage(driver);
     }
 
-    public HomePage signup(String name, String email, String password) {
+    public void signup(String name, String email, String password) {
         setName(name);
         setEmail(email);
         setPassword(password);
-        return clickSignup();
+        clickSignup();
     }
 }

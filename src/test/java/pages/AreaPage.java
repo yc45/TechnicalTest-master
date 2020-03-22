@@ -32,21 +32,17 @@ public class AreaPage {
         return this;
     }
 
-    public AreaPage clickSearch() {
+    public void clickSearch() {
         searchButton.click();
-
-        return this;
     }
 
-    public AreaPage searchDish(String dish) {
+    public void searchDish(String dish) {
         setDish(dish);
-        return clickSearch();
+        clickSearch();
     }
 
-    public AreaPage clickResult(String restaurant) {
+    public void clickResult(String restaurant) {
         driver.findElement(By.xpath("//div[@data-test-id='searchresults']//h3[text()='" + restaurant + "']")).click();
-
-        return this;
     }
 
     public List<WebElement> getSearchResults() {
@@ -55,5 +51,9 @@ public class AreaPage {
 
     public WebElement getLocationLabel() {
         return locationLabel;
+    }
+
+    public WebElement getRestaurant(String restaurant) {
+        return driver.findElement(By.xpath("//div[@data-test-id='searchresults']//h3[text()='" + restaurant + "']"));
     }
 }
